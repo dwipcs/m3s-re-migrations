@@ -1,11 +1,13 @@
 START TRANSACTION;
 
+SET FOREIGN_KEY_CHECKS = 0;
+
 ALTER TABLE `clients` 
   DROP CONSTRAINT `uq_clients_company_name_active`,
   ADD UNIQUE KEY `uq_clients_company_name_active` (`company_id`, `name_active`);
 
 ALTER TABLE `acquirers`
-  DROP INDEX `uq_acquirers_issuer_key_active`,
+  DROP CONSTRAINT `uq_acquirers_issuer_key_active`,
   ADD UNIQUE KEY `uq_acquirers_key_active` (`key_active`);
 
 DROP TABLE IF EXISTS issuer_principles;
@@ -21,6 +23,16 @@ CREATE TABLE IF NOT EXISTS issuer_principles (
     CONSTRAINT fk_issuer_principles_principle_id_principles FOREIGN KEY (principle_id) REFERENCES principles(id) ON DELETE RESTRICT
 );
 
+TRUNCATE TABLE `client_main_features`;
+
+ALTER TABLE `client_main_features`
+  DROP FOREIGN KEY `fk_climf_acquirer_id_acquirers`,
+  DROP PRIMARY KEY,
+  DROP COLUMN `acquirer_id`,
+  ADD PRIMARY KEY (`client_id`, `main_feature_id`);
+
+TRUNCATE TABLE `main_features`;
+
 ALTER TABLE `main_features`
   ADD COLUMN `acquirer_id` INT UNSIGNED NOT NULL AFTER `id`,
 
@@ -32,12 +44,6 @@ ALTER TABLE `main_features`
 
   ADD CONSTRAINT `fk_main_features_acquirer_id_acquirers`
     FOREIGN KEY (`acquirer_id`) REFERENCES `acquirers` (`id`) ON DELETE RESTRICT;
-
-ALTER TABLE `client_main_features`
-  DROP FOREIGN KEY `fk_climf_acquirer_id_acquirers`,
-  DROP PRIMARY KEY,
-  DROP COLUMN `acquirer_id`,
-  ADD PRIMARY KEY (`client_id`, `main_feature_id`);
 
 DROP PROCEDURE IF EXISTS `CheckDeletable`;
 
@@ -156,5 +162,7 @@ procedure_main_block: BEGIN
     END IF;
 
 END;
+
+SET FOREIGN_KEY_CHECKS = 1;
 
 COMMIT;
