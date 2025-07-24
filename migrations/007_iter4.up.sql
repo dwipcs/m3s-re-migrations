@@ -3,11 +3,11 @@ START TRANSACTION;
 SET FOREIGN_KEY_CHECKS = 0;
 
 ALTER TABLE `clients` 
-  DROP CONSTRAINT `uq_clients_company_name_active`,
+  DROP INDEX `uq_clients_company_name_active`,
   ADD UNIQUE KEY `uq_clients_company_name_active` (`company_id`, `name_active`);
 
 ALTER TABLE `acquirers`
-  DROP CONSTRAINT `uq_acquirers_issuer_key_active`,
+  DROP INDEX `uq_acquirers_issuer_key_active`,
   ADD UNIQUE KEY `uq_acquirers_key_active` (`key_active`);
 
 DROP TABLE IF EXISTS issuer_principles;
